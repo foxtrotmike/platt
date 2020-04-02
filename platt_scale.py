@@ -7,7 +7,7 @@ URL: http://citeseer.ist.psu.edu/viewdoc/summary?doi=10.1.1.41.1639
 
 Often times, after training a classifier, the output scores of a classifier need to be mapped to a more interpretable value. Platt's normalization is a classical method of doing just that. It fits a sigmoidal function z = 1/(1+exp(A*v+B) to the output scores v from the classifier and targets. The coefficients of the sigmoidal function can then be used to transform the output of any output from the classifier to a pseudo-probability value.
 
-Implemented by: Dr. Fayyaz Minhas, DCIS, PIEAS (faculty.pieas.edu.pk/fayyaz/)
+Implemented by: Dr. Fayyaz Minhas
 @author: afsar
 """
 import numpy as np
@@ -97,8 +97,17 @@ def plattFit(V,L):
     return A,B
 
 if __name__ == '__main__':
-    V = np.loadtxt('values.txt')    
-    A,B = plattFit(V[1],V[0])
-    pp = sigmoid(V[1],A,B)
-    import sklearn
-    print sklearn.metrics.roc_auc_score(V[0], V[1])
+
+    V = 3*(2*np.random.rand(100)-1) #classifier output raw scores
+    L = 2*((V+2*np.random.rand(len(V))-1)>0)-1 #Original binary labels
+    A,B = plattFit(V,L) #rescling-coefficients
+    print('A =',A,'B =',B)
+    pp = sigmoid(V,A,B)
+    from sklearn.metrics import roc_auc_score
+    print("Print Ranges:")
+    
+    print("Original:",np.min(V),np.max(V))
+    print("Rescaled:",np.min(pp),np.max(pp))
+    print("Calculate AUC-ROC (should not change):")
+    print(roc_auc_score(L,pp))
+    print(roc_auc_score(L,V))
